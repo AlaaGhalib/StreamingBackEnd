@@ -9,12 +9,12 @@ public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long lengthOfVideo;
+    private int lengthOfVideo;
     private String name;
     private String url;
     public Video() {
     }
-    public Video(Long lengthOfVideo_, String name_, String url_) {
+    public Video(int lengthOfVideo_, String name_, String url_) {
         this.lengthOfVideo = lengthOfVideo_;
         this.name = name_;
         this.url = url_;
@@ -24,11 +24,11 @@ public class Video {
         return id;
     }
 
-    public Long getLengthOfVideo() {
+    public int getLengthOfVideo() {
         return lengthOfVideo;
     }
 
-    public void setLengthOfVideo(Long lengthOfVideo) {
+    public void setLengthOfVideo(int lengthOfVideo) {
         this.lengthOfVideo = lengthOfVideo;
     }
 
