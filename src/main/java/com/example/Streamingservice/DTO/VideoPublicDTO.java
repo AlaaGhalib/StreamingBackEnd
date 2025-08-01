@@ -1,27 +1,16 @@
-package com.example.Streamingservice.model;
+package com.example.Streamingservice.DTO;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "videos")
-public class Video {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class VideoPublicDTO {
     private Long lengthOfVideo;
     private String name;
     private String url;
-    public Video() {
+    public VideoPublicDTO() {
+
     }
-    public Video(Long lengthOfVideo_, String name_, String url_) {
+    public VideoPublicDTO(Long lengthOfVideo_, String name_, String url_) {
         this.lengthOfVideo = lengthOfVideo_;
         this.name = name_;
         this.url = url_;
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public Long getLengthOfVideo() {
