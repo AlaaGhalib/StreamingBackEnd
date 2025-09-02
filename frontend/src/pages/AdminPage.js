@@ -2,33 +2,20 @@ import React, { useEffect, useState } from "react";
 
 function AdminPage() {
   const [movies, setMovies] = useState([]);
-  const [newVideo, setNewVideo] = useState({
-    name: "",
-    url: "",
-    lengthOfVideo: "",
-  });
+  const [newVideo, setNewVideo] = useState({ name: "", url: "", lengthOfVideo: "" });
+  const [selectedVideo, setSelectedVideo] = useState(null);
 
-  // Fetch all movies
   const fetchMovies = () => {
     fetch("http://localhost:8080/api/videos/admin")
-      .then((res) => res.json())
-      .then((data) => setMovies(data))
-      .catch((err) => console.error(err));
+      .then(res => res.json())
+      .then(data => setMovies(data))
+      .catch(err => console.error(err));
   };
 
-  useEffect(() => {
-    fetchMovies();
-  }, []);
+  useEffect(() => fetchMovies(), []);
 
-  // Handle form input changes
-  const handleChange = (e) => {
-    setNewVideo({ ...newVideo, [e.target.name]: e.target.value });
-  };
-
-  // Add a new video
-  const handleAddVideo = (e) => {
+  const handleAddVideo = e => {
     e.preventDefault();
-
     fetch("http://localhost:8080/api/videos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,21 +25,20 @@ function AdminPage() {
         lengthOfVideo: parseInt(newVideo.lengthOfVideo),
       }),
     })
-      .then((res) => res.json())
       .then(() => {
         setNewVideo({ name: "", url: "", lengthOfVideo: "" });
-        fetchMovies(); // refresh list
+        fetchMovies();
       })
-      .catch((err) => console.error(err));
+      .catch(err => console.error(err));
   };
 
-  // Delete a video
-  const handleDelete = (id) => {
-    fetch(`http://localhost:8080/api/videos/${id}`, {
-      method: "DELETE",
-    })
-      .then(() => fetchMovies())
-      .catch((err) => console.error(err));
+  const handleDelete = id => {
+    fetch(`http://localhost:8080/api/videos/${id}`, { method: "DELETE" })
+      .then(() => {
+        if (selectedVideo?.id === id) setSelectedVideo(null);
+        fetchMovies();
+      })
+      .catch(err => console.error(err));
   };
 
   return (
@@ -66,16 +52,16 @@ function AdminPage() {
           name="name"
           placeholder="Video Name"
           value={newVideo.name}
-          onChange={handleChange}
+          onChange={e => setNewVideo({ ...newVideo, name: e.target.value })}
           required
           style={{ marginRight: "10px" }}
         />
         <input
           type="text"
           name="url"
-          placeholder="Video URL"
+          placeholder="Video URL (e.g., /videos/movie.mp4)"
           value={newVideo.url}
-          onChange={handleChange}
+          onChange={e => setNewVideo({ ...newVideo, url: e.target.value })}
           required
           style={{ marginRight: "10px" }}
         />
@@ -84,66 +70,38 @@ function AdminPage() {
           name="lengthOfVideo"
           placeholder="Length (min)"
           value={newVideo.lengthOfVideo}
-          onChange={handleChange}
+          onChange={e => setNewVideo({ ...newVideo, lengthOfVideo: e.target.value })}
           required
           style={{ marginRight: "10px", width: "100px" }}
         />
-        <button type="submit" style={{ padding: "6px 12px" }}>
-          Add Video
-        </button>
+        <button type="submit">Add Video</button>
       </form>
 
-      {/* List of Videos */}
+      {/* Video List */}
       <ul style={{ listStyleType: "none", padding: 0 }}>
-        {movies.map((movie) => (
-          <li
-            key={movie.id}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "10px",
-              padding: "10px",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              backgroundColor: "#f9f9f9",
-            }}
-          >
-            <span>
-              <strong>{movie.name}</strong> ({movie.lengthOfVideo} min)
-            </span>
-            <div>
-              <button
-                onClick={() => window.open(movie.url, "_blank")}
-                style={{
-                  marginRight: "10px",
-                  padding: "6px 12px",
-                  backgroundColor: "#1e90ff",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                ▶ Play
-              </button>
-              <button
-                onClick={() => handleDelete(movie.id)}
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: "#ff4d4f",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
-                🗑 Delete
-              </button>
-            </div>
+        {movies.map(movie => (
+          <li key={movie.id} style={{ marginBottom: "10px" }}>
+            <strong>{movie.name}</strong> ({movie.lengthOfVideo} min)
+            <button onClick={() => setSelectedVideo(movie)} style={{ marginLeft: "10px" }}>
+              ▶ Play
+            </button>
+            <button onClick={() => handleDelete(movie.id)} style={{ marginLeft: "5px" }}>
+              🗑 Delete
+            </button>
           </li>
         ))}
       </ul>
+
+      {/* Inline Video Player */}
+      {selectedVideo && (
+        <div style={{ marginTop: "20px" }}>
+          <h2>Now Playing: {selectedVideo.name}</h2>
+          <video width="640" height="360" controls>
+            <source src={selectedVideo.url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      )}
     </div>
   );
 }
