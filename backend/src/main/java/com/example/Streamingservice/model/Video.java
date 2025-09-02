@@ -21,6 +21,7 @@ public class Video {
     }
 
     public Long getId() {
+        System.out.println(id);
         return id;
     }
 
